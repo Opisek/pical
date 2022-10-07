@@ -21,6 +21,25 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 		
 		const calendars = await client.fetchCalendars();
 
-		console.log(calendars);
+		for (let calendar of calendars) {
+			const objects = await client.fetchCalendarObjects({calendar: calendar});
+			objects.forEach(object => {
+				console.log(JSON.stringify(webdavToJson(object), null, 2));
+			});
+		}
 	}
 })();
+
+function webdavToJson(webdavObject) {
+	let split = webdavObject.data.split("\n");
+	let splitObject = {};
+	split.forEach(entry => {
+		let tuple = entry.split(":");
+		splitObject[tuple[0]] = tuple[1].replace("\r","");
+	});
+	return {
+		etag: webdavObject.etag,
+		url: webdavObject.url,
+		data: splitObject
+	}
+}
