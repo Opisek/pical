@@ -1,28 +1,26 @@
-const dav = require("dav");
+const tsdav = require("tsdav");
 //require("dotenv").config();
 
 const fs = require("fs");
 
 let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 
-for (let account of accounts) {
-	console.log(JSON.stringify(account, null, 2));
+(async () => {
+	for (let account of accounts) {
+		console.log(JSON.stringify(account, null, 2));
 
-	let xhr = new dav.transport.Basic(
-		new dav.Credentials({
-			username: account.user,
-			password: account.password
-		})
-	);
-
-	let client = new dav.Client(xhr);
-	
-	client.createAccount({
-		server: account.url,
-		accountType: "caldav"
-	}).then(function(acc) {
-		acc.calendars.forEach(cal => {
-			console.log(cal.displayName);
+		const client = await tsdav.createDAVClient({
+			serverUrl: account.url,
+			credentials: {
+				username: account.user,
+				password: account.password
+			},
+			authMethod: "Basic",
+			defaultAccountType: "caldav"
 		});
-	}).catch(e => { console.error(e); });
-}
+		
+		const calendars = await client.fetchCalendars();
+
+		console.log(calendars);
+	}
+})();
