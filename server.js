@@ -23,23 +23,31 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 
 		for (let calendar of calendars) {
 			const objects = await client.fetchCalendarObjects({calendar: calendar});
-			objects.forEach(object => {
-				console.log(JSON.stringify(webdavToJson(object), null, 2));
-			});
+			const parsedObjects = objects.map(object => webdavToJson(object.data.split("\n").map(e => e.replace("\r", "").split(":")), 1)[0]);
+			//console.log(JSON.stringify(parsedObjects, null, 2));
+			for (let object of parsedObjects) {
+				console.log("-----");
+				console.log("\x1b[34m%s\x1b[0m", "Event");
+				console.log(object.VEVENT.SUMMARY);
+				console.log("-----");
+			};
 		}
 	}
 })();
 
-function webdavToJson(webdavObject) {
-	let split = webdavObject.data.split("\n");
-	let splitObject = {};
-	split.forEach(entry => {
-		let tuple = entry.split(":");
-		splitObject[tuple[0]] = tuple[1].replace("\r","");
-	});
-	return {
-		etag: webdavObject.etag,
-		url: webdavObject.url,
-		data: splitObject
+function webdavToJson(split, index) {
+	let object = {};
+	do {
+		let val;
+		if (split[index][0] == "BEGIN") {
+			let result = webdavToJson(split, index+1);
+			object[split[index][1]] = result[0];
+			index = result[1];
+		}
+		else {
+			object[split[index][0]] = split[index][1];
+		}
 	}
+	while (split[++index][0] != "END");
+	return [ object, index ];
 }
