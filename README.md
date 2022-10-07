@@ -1,2 +1,2 @@
-# pical
+# PiCal
 Web-based CalDav Client
