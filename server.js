@@ -29,6 +29,8 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 				console.log("-----");
 				console.log("\x1b[34m%s\x1b[0m", "Event");
 				console.log(object.VEVENT.SUMMARY);
+				console.log("\x1b[34m%s\x1b[0m", "Everything");
+				console.log(JSON.stringify(object, null, 2));
 				console.log("-----");
 			};
 		}
@@ -43,8 +45,7 @@ function webdavToJson(split, index) {
 			let result = webdavToJson(split, index+1);
 			object[split[index][1]] = result[0];
 			index = result[1];
-		}
-		else {
+		} else {
 			object[split[index][0]] = split[index][1];
 		}
 	}
