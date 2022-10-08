@@ -10,6 +10,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "dotenv": "^16.0.3",
+    "moment-timezone": "^0.5.37",
     "tsdav": "^2.0.3"
   }
 }

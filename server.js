@@ -1,3 +1,4 @@
+const moment = require("moment-timezone");
 const tsdav = require("tsdav");
 //require("dotenv").config();
 
@@ -29,8 +30,12 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 				console.log("-----");
 				console.log("\x1b[34m%s\x1b[0m", "Event");
 				console.log(object.VEVENT.SUMMARY);
-				console.log("\x1b[34m%s\x1b[0m", "Everything");
-				console.log(JSON.stringify(object, null, 2));
+				console.log("\x1b[34m%s\x1b[0m", "Start");
+				console.log(getDate(object.VEVENT.DTSTART).format("Do MMMM Y HH:mm:ss"));
+				console.log("\x1b[34m%s\x1b[0m", "End");
+				console.log(getDate(object.VEVENT.DTEND).format("Do MMMM Y HH:mm:ss"));
+				//console.log("\x1b[34m%s\x1b[0m", "Everything");
+				//console.log(JSON.stringify(object, null, 2));
 				console.log("-----");
 			};
 		}
@@ -46,9 +51,17 @@ function webdavToJson(split, index) {
 			object[split[index][1]] = result[0];
 			index = result[1];
 		} else {
-			object[split[index][0]] = split[index][1];
+			let keySplit = split[index][0].split(";");
+			if (keySplit.length == 1) object[split[index][0]] = split[index][1];
+			else object[keySplit.shift()] = [ split[index][1], keySplit.join(";") ];
 		}
 	}
 	while (split[++index][0] != "END");
 	return [ object, index ];
+}
+
+function getDate(value) {
+	let timezone = "UTC";
+	if (Array.isArray(value) && value[1].startsWith("TZID")) timezone = value[1].substr(5);
+	return moment.tz(Array.isArray(value) ? value[0] : value, timezone);
 }
