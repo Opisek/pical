@@ -9,3 +9,5 @@ Scope of this project:
 - Modern-looking calendar
 - Progressive Web App
 - Docker support
+
+This project is currently work-in-progress.
