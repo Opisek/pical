@@ -1,0 +1,48 @@
+* { 
+    box-sizing: border-box;
+    transition: .25s;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    display: grid;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    font-size: large;
+    background-color: #282528;
+    color: #f0f8ff;
+    text-align: center;
+    grid-template-rows: 10fr auto 11fr;
+    height: 100%;
+}
+
+main {
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+a {
+    color: inherit;
+    text-decoration: inherit;
+    cursor: pointer;
+}
+
+h1 {
+    font-size: 5rem;
+    font-weight: 700;
+}
+
+@media screen and (max-width: 700px) {
+    body {
+        grid-template-rows: 100%;
+    }
+    main {
+        grid-row: 1;
+        flex-direction: column !important;
+    }
+}

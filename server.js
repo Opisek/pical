@@ -1,7 +1,11 @@
 const tsdav = require("tsdav");
-//require("dotenv").config();
-
 const fs = require("fs");
+const path = require("path");
+const http = require("http");
+require("dotenv").config();
+
+
+// caldav stuff
 
 let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 
@@ -52,3 +56,40 @@ function webdavToJson(split, index) {
 	while (split[++index][0] != "END");
 	return [ object, index ];
 }
+
+// web stuff
+
+const express = require("express");
+const server = express();
+server.use(express.json());
+server.use(express.urlencoded({extended:false}));
+server.set("view engine", "ejs");
+
+const serverPath = __dirname;
+const publicPath = path.join(serverPath + '/public');
+server.set("views", path.join(publicPath + '/ejs'))
+server.set("/partials", path.join(publicPath + '/partials'))
+server.use("/css", express.static(path.join(publicPath + '/css')));
+server.use("/js", express.static(path.join(publicPath + '/js')));
+server.use("/images", express.static(path.join(publicPath + '/images')));
+
+server.set("trust proxy", "loopback, linklocal, uniquelocal")
+
+server.get("/", (req, res) => {
+    //if (authenticate(req, res)) return;
+
+    //res.render(`index`, {host: `https://${host}`});
+    res.render("index");
+    res.end();
+});
+
+server.get("*", (req, res) => {
+    res.status(404);
+    res.render("404", { host: `${req.protocol}://${req.hostname}/` });
+    res.end();
+});
+
+const httpServer = http.createServer(server);
+httpServer.listen(process.env.PORT);
+console.log("listening on " + process.env.PORT);
+
