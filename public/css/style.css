@@ -36,7 +36,7 @@ main > div {
     height: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    grid-auto-rows: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
     --gap: .25em;
     position: absolute;
     gap: var(--gap);
@@ -67,6 +67,7 @@ main > div > div {
     background-color: transparent !important;
     grid-column-start: 1;
     grid-column-end: var(--offset, 1);
+    grid-row: 1;
 }
 
 a {

@@ -1,39 +1,12 @@
 <!DOCTYPE html>
 <head>
     <%- include("partials/commonHead.ejs") %>
-    <link rel="stylesheet" href="css/pages/index.css">
+    <link rel="stylesheet" type="text/css" href="css/pages/index.css">
 </head>
 <body>
     <main>
         <div id="days"></div>
         <div id="events"></div>
     </main>
-    <script>
-        function renderMonth(count, offset) {
-            if (offset != 0) {
-                const main = document.getElementsByTagName("main")[0];
-                for (const grid of main.children) {
-                    let empty = document.createElement("div");
-                    empty.classList.add("offset");
-                    empty.style = `--offset:${offset+1}`;
-                    grid.appendChild(empty);
-                }
-            }
-            const days = document.getElementById("days");
-            for (let i = 1; i <= count; ++i) {
-                let day = document.createElement("div");
-                day.innerHTML = i;
-                if ((i + offset - 1) % 7 == 0 || i == 1) day.classList.add("start");
-                else if ((i + offset) % 7 == 0 || i == count) day.classList.add("end");
-                days.appendChild(day);
-            }
-            const events = document.getElementById("events");
-            for (let i = 1; i <= 5; ++i) {
-                let event = document.createElement("div");
-                event.innerHTML = "Event";
-                events.appendChild(event);
-            }
-        }
-        window.addEventListener("load", () => renderMonth(30, 2));
-    </script>
+    <script type="text/javascript" src="js/pages/index.js"></script>
 </body>
