@@ -25,28 +25,48 @@ body {
 }
 
 main {
-    grid-area: cal;
-    background-color: green;
     width: 100%;
     height: 100%;
-    /*display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    grid-auto-rows: 1fr 1fr 1fr 1fr;*/
-    gap: .5em;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: flex-start;
+    position: relative;
+    grid-area: cal;
 }
 
 main > div {
-    background-color: blue;
-    width: calc((100% - 3em) / 7);
-    height: calc((100% - 2em) / 5);
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-auto-rows: 1fr 1fr 1fr 1fr;
+    --gap: .25em;
+    position: absolute;
+    gap: var(--gap);
 }
 
-main > div:first-child {
-    margin-left: calc(((100% - 3em) / 7 + .5em) * 2);
+main > div > div {
+    width: 100%;
+    height: 100%;
+}
+
+#days > div {
+    background-color: #383538;
+}
+
+#days > .start {
+    border-radius: .5em 0 0 .5em;
+}
+
+#days > .end {
+    border-radius: 0 .5em .5em 0;
+}
+
+#events > div {
+    padding-top: 2em;
+}
+
+.offset {
+    background-color: transparent !important;
+    grid-column-start: 1;
+    grid-column-end: var(--offset, 1);
 }
 
 a {
