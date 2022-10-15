@@ -4,6 +4,7 @@
 }
 
 html {
+    width: 100%;
     height: 100%;
 }
 
@@ -15,15 +16,37 @@ body {
     background-color: #282528;
     color: #f0f8ff;
     text-align: center;
-    grid-template-rows: 10fr auto 11fr;
+    width: 100%;
     height: 100%;
+    grid-template-rows: 5em auto 5em;
+    grid-template-columns: 10em auto;
+    grid-template-areas:    "nav nav"
+                            "side cal";
 }
 
 main {
-    grid-row: 2;
+    grid-area: cal;
+    background-color: green;
+    width: 100%;
+    height: 100%;
+    /*display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-auto-rows: 1fr 1fr 1fr 1fr;*/
+    gap: .5em;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+main > div {
+    background-color: blue;
+    width: calc((100% - 3em) / 7);
+    height: calc((100% - 2em) / 5);
+}
+
+main > div:first-child {
+    margin-left: calc(((100% - 3em) / 7 + .5em) * 2);
 }
 
 a {

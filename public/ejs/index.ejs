@@ -4,7 +4,17 @@
     <link rel="stylesheet" href="css/pages/index.css">
 </head>
 <body>
-    <main>
-        hello
+    <main id="cal">
     </main>
+    <script>
+        function renderMonth(days, offset) {
+            let cal = document.getElementById("cal");
+            for (let i = 1; i <= days; ++i) {
+                let day = document.createElement("div");
+                day.innerHTML = i;
+                cal.appendChild(day);
+            }
+        }
+        window.addEventListener("load", () => renderMonth(30, 1));
+    </script>
 </body>
