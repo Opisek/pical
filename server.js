@@ -5,7 +5,7 @@ const path = require("path");
 const http = require("http");
 require("dotenv").config();
 
-const { order } = require("./modules/packing.js");
+const eventList = require("./modules/eventList");
 
 
 // caldav stuff
@@ -28,32 +28,14 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 		
 		const calendars = await client.fetchCalendars();
 
+		let eventListObject = new eventList();
+
 		for (let calendar of calendars) {
 			const objects = await client.fetchCalendarObjects({calendar: calendar});
 			const parsedObjects = objects.map(object => webdavToJson(object.data.split("\n").map(e => e.replace("\r", "").split(":")), 1)[0]);
 			//console.log(JSON.stringify(parsedObjects, null, 2));
-			let elements = [];
-			for (let index in parsedObjects) {
-				let object = parsedObjects[index];
-				elements.push(
-					{
-						"id": elements.length,
-						"start": getDate(object.VEVENT.DTSTART).unix(),
-						"end": getDate(object.VEVENT.DTEND).unix()
-					}
-				);
-				/*console.log("-----");
-				console.log("\x1b[34m%s\x1b[0m", "Event");
-				console.log(object.VEVENT.SUMMARY);
-				console.log("\x1b[34m%s\x1b[0m", "Start");
-				console.log(getDate(object.VEVENT.DTSTART).format("Do MMMM Y HH:mm:ss"));
-				console.log("\x1b[34m%s\x1b[0m", "End");
-				console.log(getDate(object.VEVENT.DTEND).format("Do MMMM Y HH:mm:ss"));
-				//console.log("\x1b[34m%s\x1b[0m", "Everything");
-				//console.log(JSON.stringify(object, null, 2));
-				console.log("-----");*/
-			};
-			let ordering = order(elements);
+			for (let object of parsedObjects) eventListObject.addEvent(object);
+			/*let ordering = order(elements);
 			console.log(ordering);
 			for (let index in parsedObjects) {
 				let object = parsedObjects[index];
@@ -61,8 +43,10 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 				console.log(getDate(object.VEVENT.DTSTART).format("Do MMMM Y HH:mm:ss"));
 				console.log(getDate(object.VEVENT.DTEND).format("Do MMMM Y HH:mm:ss"));
 				console.log(ordering[index]);
-			}
+			}*/
 		}
+
+		console.log(JSON.stringify(eventListObject.getEventsMonth("2022", "9"), null, 2));
 	}
 })();
 
@@ -82,12 +66,6 @@ function webdavToJson(split, index) {
 	}
 	while (split[++index][0] != "END");
 	return [ object, index ];
-}
-
-function getDate(value) {
-	let timezone = "UTC";
-	if (Array.isArray(value) && value[1].startsWith("TZID")) timezone = value[1].substr(5);
-	return moment.tz(Array.isArray(value) ? value[0] : value, timezone);
 }
 
 // web stuff
