@@ -5,6 +5,8 @@ const path = require("path");
 const http = require("http");
 require("dotenv").config();
 
+const { order } = require("./modules/packing.js");
+
 
 // caldav stuff
 
@@ -30,8 +32,17 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 			const objects = await client.fetchCalendarObjects({calendar: calendar});
 			const parsedObjects = objects.map(object => webdavToJson(object.data.split("\n").map(e => e.replace("\r", "").split(":")), 1)[0]);
 			//console.log(JSON.stringify(parsedObjects, null, 2));
-			for (let object of parsedObjects) {
-				console.log("-----");
+			let elements = [];
+			for (let index in parsedObjects) {
+				let object = parsedObjects[index];
+				elements.push(
+					{
+						"id": elements.length,
+						"start": getDate(object.VEVENT.DTSTART).unix(),
+						"end": getDate(object.VEVENT.DTEND).unix()
+					}
+				);
+				/*console.log("-----");
 				console.log("\x1b[34m%s\x1b[0m", "Event");
 				console.log(object.VEVENT.SUMMARY);
 				console.log("\x1b[34m%s\x1b[0m", "Start");
@@ -40,8 +51,17 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 				console.log(getDate(object.VEVENT.DTEND).format("Do MMMM Y HH:mm:ss"));
 				//console.log("\x1b[34m%s\x1b[0m", "Everything");
 				//console.log(JSON.stringify(object, null, 2));
-				console.log("-----");
+				console.log("-----");*/
 			};
+			let ordering = order(elements);
+			console.log(ordering);
+			for (let index in parsedObjects) {
+				let object = parsedObjects[index];
+				console.log(object.VEVENT.SUMMARY);
+				console.log(getDate(object.VEVENT.DTSTART).format("Do MMMM Y HH:mm:ss"));
+				console.log(getDate(object.VEVENT.DTEND).format("Do MMMM Y HH:mm:ss"));
+				console.log(ordering[index]);
+			}
 		}
 	}
 })();
