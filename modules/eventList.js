@@ -33,10 +33,11 @@ class classList {
     }
     _order(events) {
         let result = {};
-        events = events.sort((a, b) => (a.VEVENT.parsed.start.unix() > b.VEVENT.parsed.start.unix()) ? 1 : -1);
+        events.sort((a, b) => (a.VEVENT.parsed.start.unix() > b.VEVENT.parsed.start.unix()) ? 1 : -1);
         let occupied = [];
         for (let event of events) {
             let start = event.VEVENT.parsed.start.unix();
+            let end = event.VEVENT.parsed.end.unix();
             while (occupied.length != 0 && occupied[occupied.length - 1] <= start) occupied.pop();
             occupied.push(0);
             let y = 0;
