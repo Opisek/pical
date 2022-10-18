@@ -11,6 +11,7 @@ const eventList = require("./modules/eventList");
 // caldav stuff
 
 let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
+let eventListObject = new eventList();
 
 (async () => {
 	for (let account of accounts) {
@@ -28,8 +29,6 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 		
 		const calendars = await client.fetchCalendars();
 
-		let eventListObject = new eventList();
-
 		for (let calendar of calendars) {
 			const objects = await client.fetchCalendarObjects({calendar: calendar});
 			const parsedObjects = objects.map(object => webdavToJson(object.data.split("\n").map(e => e.replace("\r", "").split(":")), 1)[0]);
@@ -45,8 +44,6 @@ let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
 				console.log(ordering[index]);
 			}*/
 		}
-
-		console.log(JSON.stringify(eventListObject.getEventsMonth("2022", "9"), null, 2));
 	}
 })();
 
@@ -71,22 +68,25 @@ function webdavToJson(split, index) {
 // web stuff
 
 const express = require("express");
-const server = express();
-server.use(express.json());
-server.use(express.urlencoded({extended:false}));
-server.set("view engine", "ejs");
+const webServer = express();
+const httpServer = http.createServer(webServer);
+const socketio = require("socket.io");
+const socketServer = new socketio.Server(httpServer);
+webServer.use(express.json());
+webServer.use(express.urlencoded({extended:false}));
+webServer.set("view engine", "ejs");
 
 const serverPath = __dirname;
 const publicPath = path.join(serverPath + '/public');
-server.set("views", path.join(publicPath + '/ejs'))
-server.set("/partials", path.join(publicPath + '/partials'))
-server.use("/css", express.static(path.join(publicPath + '/css')));
-server.use("/js", express.static(path.join(publicPath + '/js')));
-server.use("/images", express.static(path.join(publicPath + '/images')));
+webServer.set("views", path.join(publicPath + '/ejs'))
+webServer.set("/partials", path.join(publicPath + '/partials'))
+webServer.use("/css", express.static(path.join(publicPath + '/css')));
+webServer.use("/js", express.static(path.join(publicPath + '/js')));
+webServer.use("/images", express.static(path.join(publicPath + '/images')));
 
-server.set("trust proxy", "loopback, linklocal, uniquelocal")
+webServer.set("trust proxy", "loopback, linklocal, uniquelocal")
 
-server.get("/", (req, res) => {
+webServer.get("/", (req, res) => {
     //if (authenticate(req, res)) return;
 
     //res.render(`index`, {host: `https://${host}`});
@@ -94,12 +94,17 @@ server.get("/", (req, res) => {
     res.end();
 });
 
-server.get("*", (req, res) => {
+webServer.get("*", (req, res) => {
     res.status(404);
     res.render("404", { host: `${req.protocol}://${req.hostname}/` });
     res.end();
 });
 
-const httpServer = http.createServer(server);
+socketServer.on("connection", socket => {
+	socket.on("requestEventsMonth", (data, callback) => {
+		callback(eventListObject.getEventsMonth(data.year, data.month));
+	});
+});
+
 httpServer.listen(process.env.PORT);
 console.log("listening on " + process.env.PORT);
