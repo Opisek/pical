@@ -7,10 +7,14 @@ require("dotenv").config();
 
 const eventList = require("./modules/eventList");
 
+const privatePath = path.resolve(__dirname, "..");
+const publicPath = path.join(privatePath, "..", "public");
+const rootPath = path.resolve(privatePath, "..", "..");
+const configPath = path.join(rootPath, "config");
 
 // caldav stuff
 
-let accounts = JSON.parse(fs.readFileSync("accounts.json")).accounts;
+let accounts = JSON.parse(fs.readFileSync(path.join(configPath, "accounts.json"))).accounts;
 let eventListObject = new eventList();
 
 (async () => {
@@ -76,13 +80,12 @@ webServer.use(express.json());
 webServer.use(express.urlencoded({extended:false}));
 webServer.set("view engine", "ejs");
 
-const serverPath = __dirname;
-const publicPath = path.join(serverPath + '/public');
-webServer.set("views", path.join(publicPath + '/ejs'))
-webServer.set("/partials", path.join(publicPath + '/partials'))
-webServer.use("/css", express.static(path.join(publicPath + '/css')));
-webServer.use("/js", express.static(path.join(publicPath + '/js')));
-webServer.use("/images", express.static(path.join(publicPath + '/images')));
+console.log(publicPath);
+webServer.set("views", path.join(publicPath + "/ejs"))
+webServer.set("/partials", path.join(publicPath, "/partials"));
+webServer.use("/css", express.static(path.join(publicPath, "/css")));
+webServer.use("/js", express.static(path.join(publicPath, "/js")));
+webServer.use("/images", express.static(path.join(publicPath, "/images")));
 
 webServer.set("trust proxy", "loopback, linklocal, uniquelocal")
 
