@@ -1,10 +1,12 @@
-function requestData() {
-    return new Promise((resolve, reject) => {
-        socket.emit("requestEventsMonth", {"year": todayYear, "month": todayMonth}, response => resolve(response));
+//import { Manager, Socket } from "socket.io-client"
+
+function requestData(socket: /*Socket*/ any): any {
+    return new Promise(resolve => {
+        socket.emit("requestEventsMonth", {"year": todayYear, "month": todayMonth}, (response: any) => resolve(response));
     });
 }
 
-function getGridPosition(day, offset) {
+function getGridPosition(day: number, offset: number) {
     let cell = day + offset - 1;
     console.log(cell);
     return { "x": cell % 7 , "y": Math.floor(cell / 7) };
@@ -15,8 +17,8 @@ function insertEvent() {
 
 }
 
-async function renderMonth() {
-    let eventList = await requestData();
+async function renderMonth(socket: /*Socket*/ any) {
+    let eventList = await requestData(socket);
     var viewCount = new Date(viewYear, viewMonth + 1, 0).getDate();
     var viewOffset = new Date(viewYear, viewMonth, 1).getDay() - 1;
     if (viewOffset == -1) viewOffset = 6;
@@ -26,19 +28,23 @@ async function renderMonth() {
             grid.innerHTML = "";
             let empty = document.createElement("div");
             empty.classList.add("offset");
-            empty.style = `--offset:${viewOffset+1}`;
+            empty.setAttribute("style", `--offset:${viewOffset+1}`);
             grid.appendChild(empty);
         }
     }
     const days = document.getElementById("days");
+    if (days == null) return;
+
     for (let i = 1; i <= viewCount; ++i) {
         let day = document.createElement("div");
-        day.innerHTML = i;
+        day.innerHTML = i.toString();
         if ((i + viewOffset - 1) % 7 == 0 || i == 1) day.classList.add("start");
         else if ((i + viewOffset) % 7 == 0 || i == viewCount) day.classList.add("end");
         days.appendChild(day);
+    
     }
     const eventsGrid = document.getElementById("events");
+    if (eventsGrid == null) return;
     for (const event of eventList.events) {
         let eventElement = document.createElement("div");
         console.log(event.VEVENT.SUMMARY);
@@ -55,6 +61,8 @@ var viewDay = todayDay;
 var viewMonth = todayMonth;
 var viewYear = todayYear;
 
-const socket = io();
+//const socket: Socket = (new Manager()).socket('/');
+//window.addEventListener("load", () => renderMonth(socket));
 
+const socket = io();
 window.addEventListener("load", () => renderMonth(socket));

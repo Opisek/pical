@@ -1,26 +1,26 @@
-const moment = require("moment-timezone");
-const tsdav = require("tsdav");
-const fs = require("fs");
-const path = require("path");
-const http = require("http");
+import tsdav, { DAVCalendar, DAVClient, DAVObject } from "tsdav";
+import fs from "fs";
+import path from "path";
 require("dotenv").config();
 
-const eventList = require("./modules/eventList");
+import eventList from "./modules/eventList";
+import webServer from "./modules/webserver";
+import { webdavToJson } from "./modules/webdav";
 
-const privatePath = path.resolve(__dirname, "..");
-const publicPath = path.join(privatePath, "..", "public");
-const rootPath = path.resolve(privatePath, "..", "..");
-const configPath = path.join(rootPath, "config");
+// paths
+const privatePath: string = path.resolve(__dirname, "..");
+const publicPath: string = path.join(privatePath, "..", "public");
+const rootPath: string = path.resolve(privatePath, "..", "..");
+const configPath: string = path.join(rootPath, "config");
 
-// caldav stuff
-
-let accounts = JSON.parse(fs.readFileSync(path.join(configPath, "accounts.json"))).accounts;
-let eventListObject = new eventList();
+// caldav
+const accounts: any[] = JSON.parse(fs.readFileSync(path.join(configPath, "accounts.json"), "utf8")).accounts;
+const eventListObject = new eventList(0, 0);
 
 (async () => {
-	for (let account of accounts) {
-		console.log(JSON.stringify(account, null, 2));
-
+	// log in with every account
+	for (const account of accounts) {
+		// authenticate
 		const client = await tsdav.createDAVClient({
 			serverUrl: account.url,
 			credentials: {
@@ -31,13 +31,23 @@ let eventListObject = new eventList();
 			defaultAccountType: "caldav"
 		});
 		
-		const calendars = await client.fetchCalendars();
-
-		for (let calendar of calendars) {
-			const objects = await client.fetchCalendarObjects({calendar: calendar});
-			const parsedObjects = objects.map(object => webdavToJson(object.data.split("\n").map(e => e.replace("\r", "").split(":")), 1)[0]);
+		// get and parse all calendars
+		const calendars: DAVCalendar[] = await client.fetchCalendars();
+		for (const calendar of calendars) {
+			const objects: DAVObject[] = await client.fetchCalendarObjects({calendar: calendar});
+			const parsedObjects: any[] = objects.map(
+				(object: DAVObject) => webdavToJson(
+					object.data.split("\n").map(
+						(e: string) => e.replace("\r", "").split(":")
+					),
+					1
+				)[0]
+			);
+			
 			//console.log(JSON.stringify(parsedObjects, null, 2));
+
 			for (let object of parsedObjects) eventListObject.addEvent(object);
+
 			/*let ordering = order(elements);
 			console.log(ordering);
 			for (let index in parsedObjects) {
@@ -51,63 +61,9 @@ let eventListObject = new eventList();
 	}
 })();
 
-function webdavToJson(split, index) {
-	let object = {};
-	do {
-		let val;
-		if (split[index][0] == "BEGIN") {
-			let result = webdavToJson(split, index+1);
-			object[split[index][1]] = result[0];
-			index = result[1];
-		} else {
-			let keySplit = split[index][0].split(";");
-			if (keySplit.length == 1) object[split[index][0]] = split[index][1];
-			else object[keySplit.shift()] = [ split[index][1], keySplit.join(";") ];
-		}
-	}
-	while (split[++index][0] != "END");
-	return [ object, index ];
-}
+// webserver
+const webServerInstance: webServer = new webServer(Number.parseInt(process.env.PORT!), publicPath);
 
-// web stuff
-
-const express = require("express");
-const webServer = express();
-const httpServer = http.createServer(webServer);
-const socketio = require("socket.io");
-const socketServer = new socketio.Server(httpServer);
-webServer.use(express.json());
-webServer.use(express.urlencoded({extended:false}));
-webServer.set("view engine", "ejs");
-
-console.log(publicPath);
-webServer.set("views", path.join(publicPath + "/ejs"))
-webServer.set("/partials", path.join(publicPath, "/partials"));
-webServer.use("/css", express.static(path.join(publicPath, "/css")));
-webServer.use("/js", express.static(path.join(publicPath, "/js")));
-webServer.use("/images", express.static(path.join(publicPath, "/images")));
-
-webServer.set("trust proxy", "loopback, linklocal, uniquelocal")
-
-webServer.get("/", (req, res) => {
-    //if (authenticate(req, res)) return;
-
-    //res.render(`index`, {host: `https://${host}`});
-    res.render("index");
-    res.end();
-});
-
-webServer.get("*", (req, res) => {
-    res.status(404);
-    res.render("404", { host: `${req.protocol}://${req.hostname}/` });
-    res.end();
-});
-
-socketServer.on("connection", socket => {
-	socket.on("requestEventsMonth", (data, callback) => {
-		callback(eventListObject.getEventsMonth(data.year, data.month));
-	});
-});
-
-httpServer.listen(process.env.PORT);
-console.log("listening on " + process.env.PORT);
+webServerInstance.listen("requestEventsMonth", {run: (data: any) => {
+	return eventListObject.getEventsMonth(data.year, data.month);
+}});

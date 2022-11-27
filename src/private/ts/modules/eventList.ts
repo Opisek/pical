@@ -1,38 +1,42 @@
-const moment = require("moment-timezone");
+import moment, { Moment } from "moment-timezone";
 
-class classList {
-    constructor(height, width) {
-      this._list = {};
-      this._byDate = {};
+export default class classList {
+    private list: any;
+    private byDate: any;
+
+    public constructor(height: number, width: number) {
+        this.list = {};
+        this.byDate = {};
     }
-    addEvent(object) {
+
+    public addEvent(object: any) {
         object.VEVENT.parsed = {};
         object.VEVENT.parsed.start = getDate(object.VEVENT.DTSTART);
         object.VEVENT.parsed.end = getDate(object.VEVENT.DTEND);
-        this._list[object.VEVENT.UID] = object;
-        this._insertIntoDate(object.VEVENT.UID, object.VEVENT.parsed.start);
-        this._insertIntoDate(object.VEVENT.UID, object.VEVENT.parsed.end);
+        this.list[object.VEVENT.UID] = object;
+        this.insertIntoDate(object.VEVENT.UID, object.VEVENT.parsed.start);
+        this.insertIntoDate(object.VEVENT.UID, object.VEVENT.parsed.end);
     }
-    _insertIntoDate(id, time) {
-        if (!(time.year() in this._byDate)) this._byDate[time.year()] = {};
-        let yearCollection = this._byDate[time.year()];
+    private insertIntoDate(id: any, time: Moment) {
+        if (!(time.year() in this.byDate)) this.byDate[time.year()] = {};
+        let yearCollection = this.byDate[time.year()];
         if (!(time.month() in yearCollection)) yearCollection[time.month()] = {};
         // the same could be done for weeks and months, but i doubt you'd have enough events in such a short timespan for it to be worth it
         yearCollection[time.month()][id] = true; // easy deletion and merge possible
     }
-    getEventsYear(year) {
+    public getEventsYear(year: number) {
 
     }
-    getEventsMonth(year, month) {
-        let result = [];
-        if (!(year in this._byDate)) return result;
-        let yearCollection = this._byDate[year];
+    public getEventsMonth(year: number, month: number) {
+        let result: any[] = [];
+        if (!(year in this.byDate)) return result;
+        let yearCollection = this.byDate[year];
         if (!(month in yearCollection)) return result;
-        for (let id of Object.keys(yearCollection[month])) result.push(this._list[id]);
-        return { "events": result, "order": this._order(result) };
+        for (let id of Object.keys(yearCollection[month])) result.push(this.list[id]);
+        return { "events": result, "order": this.order(result) };
     }
-    _order(events) {
-        let result = {};
+    private order(events: any[]) {
+        let result: any = {};
         events.sort((a, b) => (a.VEVENT.parsed.start.unix() > b.VEVENT.parsed.start.unix()) ? 1 : -1);
         let occupied = [];
         for (let event of events) {
@@ -49,10 +53,8 @@ class classList {
     }
 }
 
-function getDate(value) {
+function getDate(value: any): Moment {
 	let timezone = "UTC";
 	if (Array.isArray(value) && value[1].startsWith("TZID")) timezone = value[1].substr(5);
 	return moment.tz(Array.isArray(value) ? value[0] : value, timezone);
 }
-
-module.exports = classList;
