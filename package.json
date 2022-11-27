@@ -2,8 +2,10 @@
   "name": "pical",
   "version": "1.0.0",
   "description": "Web-based CalDav Client",
-  "main": "server.js",
+  "main": "src/private/js/server.js",
   "scripts": {
+    "start": "sudo node src/private/js/server.js",
+    "build": "tsc -p src/private/tsconfig.json; tsc -p src/public/tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,5 +26,8 @@
     "socket-io": "^1.0.0",
     "socket.io": "^4.5.2",
     "tsdav": "^2.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.3"
   }
 }

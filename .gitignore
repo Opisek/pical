@@ -104,4 +104,6 @@ dist
 .tern-port
 
 package-lock.json
-accounts.json
+config/accounts.json
+src/private/js
+src/public/js
