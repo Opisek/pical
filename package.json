@@ -4,7 +4,7 @@
   "description": "Web-based CalDav Client",
   "main": "src/private/js/server.js",
   "scripts": {
-    "start": "sudo node src/private/js/server.js",
+    "start": "node src/private/js/server.js",
     "build": "tsc --build tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
