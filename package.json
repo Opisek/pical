@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Opisek/opical.git"
+    "url": "git+https://github.com/Opisek/pical.git"
   },
   "author": "Kacper Darowski",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Opisek/opical/issues"
+    "url": "https://github.com/Opisek/pical/issues"
   },
-  "homepage": "https://github.com/Opisek/opical#readme",
+  "homepage": "https://github.com/Opisek/pical#readme",
   "dependencies": {
     "dotenv": "^16.0.3",
     "ejs": "^3.1.8",
