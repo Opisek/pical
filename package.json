@@ -5,7 +5,7 @@
   "main": "src/private/js/server.js",
   "scripts": {
     "start": "sudo node src/private/js/server.js",
-    "build": "tsc -p src/private/tsconfig.json; tsc -p src/public/tsconfig.json",
+    "build": "tsc --build tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
