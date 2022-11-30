@@ -64,5 +64,6 @@ var viewYear = todayYear;
 //const socket: Socket = (new Manager()).socket('/');
 //window.addEventListener("load", () => renderMonth(socket));
 
+declare const io: () => void;
 const socket = io();
 window.addEventListener("load", () => renderMonth(socket));
