@@ -10,4 +10,4 @@ Scope of this project:
 - Progressive Web App
 - Docker support
 
-This project is currently work-in-progress.
+Superceded by [Luna](https://github.com/Opisek/luna)
